@@ -37,16 +37,16 @@ class Instance(_utils):
 
                 await self.remove_todo_from_queue(net, msg)
 
-    async def remove_todo_from_queue(self, net: str, msg: dict):
+    async def remove_todo_from_queue(self, net: NET, msg: dict):
         db: dict[Collections, Collection] = (
-            self.motor_mainnet if net.value == "mainnet" else self.motor_testnet
+            self.motor_mainnet if net == NET.MAINNET else self.motor_testnet
         )
 
         _ = await db[Collections.queue_todo].bulk_write(
             [DeleteOne({"_id": msg["_id"]})]
         )
 
-    async def process_new_instance(self, net: str, msg: dict):
+    async def process_new_instance(self, net: NET, msg: dict):
         self.motor_mainnet: dict[Collections, Collection]
         self.motor_testnet: dict[Collections, Collection]
         self.grpcclient: GRPCClient
@@ -60,7 +60,7 @@ class Instance(_utils):
                 instance_as_class.index,
                 instance_as_class.subindex,
                 "last_final",
-                NET(net),
+                net,
             )
             instance_info: dict = instance_info_grpc.model_dump(exclude_none=True)
 
@@ -83,10 +83,10 @@ class Instance(_utils):
         _ = await db_to_use[Collections.instances].bulk_write(
             [ReplaceOne({"_id": instance_ref}, instance_info, upsert=True)]
         )
-        tooter_message = f"{net}: New instance processed {instance_ref}."
+        tooter_message = f"{net.value}: New instance processed {instance_ref}."
         self.send_to_tooter(tooter_message)
 
-    async def process_upgraded_instance(self, net: str, msg: dict):
+    async def process_upgraded_instance(self, net: NET, msg: dict):
         self.motor_mainnet: dict[Collections, Collection]
         self.motor_testnet: dict[Collections, Collection]
         self.grpcclient: GRPCClient
@@ -114,5 +114,5 @@ class Instance(_utils):
         _ = await db_to_use[Collections.instances].bulk_write(
             [ReplaceOne({"_id": msg["address"]}, instance_as_class.model_dump(exclude_none=True), upsert=True)]
         )
-        tooter_message = f"{net}: Instance processed {msg["address"]} upgraded from module {msg["from_module"]} to module {msg["to_module"]}."
+        tooter_message = f"{net.value}: Instance processed {msg["address"]} upgraded from module {msg["from_module"]} to module {msg["to_module"]}."
         self.send_to_tooter(tooter_message)
