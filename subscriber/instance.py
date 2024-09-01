@@ -120,7 +120,7 @@ class Instance(_utils):
             return
 
         _ = await db_to_use[Collections.instances].bulk_write(
-            [ReplaceOne(ReplaceOne({"_id": instance_ref}, instance_info, upsert=True))]
+            [ReplaceOne({"_id": instance_ref}, instance_info, upsert=True)]
         )
         tooter_message = f"{net}: New instance processed {instance_ref}."
         self.send_to_tooter(tooter_message)
@@ -151,7 +151,7 @@ class Instance(_utils):
     
             
         _ = await db_to_use[Collections.instances].bulk_write(
-            [ReplaceOne(ReplaceOne({"_id": msg["address"]}, instance_as_class.model_dump(exclude_none=True), upsert=True))]
+            [ReplaceOne({"_id": msg["address"]}, instance_as_class.model_dump(exclude_none=True), upsert=True)]
         )
         tooter_message = f"{net}: Instance processed {msg["address"]} upgraded from module {msg["from_module"]} to module {msg["to_module"]}."
         self.send_to_tooter(tooter_message)
