@@ -16,45 +16,6 @@ console = Console()
 
 
 class Instance(_utils):
-    def get_module_metadata(
-        self, net: NET, block_hash: str, module_ref: str
-    ) -> dict[str, str]:
-        self.grpcclient: GRPCClient
-        ms = self.grpcclient.get_module_source(module_ref, block_hash, net)
-
-        if ms.v0:
-            bs = io.BytesIO(bytes.fromhex(ms.v0))
-        else:
-            bs = io.BytesIO(bytes.fromhex(ms.v1))
-
-        try:
-            module = wadze.parse_module(bs.read())
-        except Exception as e:
-            tooter_message = (
-                f"{net}: New module get_module_metadata failed with error  {e}."
-            )
-            self.send_to_tooter(tooter_message)
-            return {}
-
-        results = {}
-        if "export" in module.keys():
-            for line in module["export"]:
-                split_line = str(line).split("(")
-                if split_line[0] == "ExportFunction":
-                    split_line = str(line).split("'")
-                    name = split_line[1]
-
-                    if name[:5] == "init_":
-                        results["module_name"] = name[5:]
-                    else:
-                        method_name = name.split(".")[1] if "." in name else name
-                        if "methods" in results:
-                            results["methods"].append(method_name)
-                        else:
-                            results["methods"] = [method_name]
-
-        return results
-
     async def cleanup(self):
 
         for net in NET:
@@ -99,7 +60,7 @@ class Instance(_utils):
                 instance_as_class.index,
                 instance_as_class.subindex,
                 "last_final",
-                net,
+                NET(net),
             )
             instance_info: dict = instance_info_grpc.model_dump(exclude_none=True)
 
