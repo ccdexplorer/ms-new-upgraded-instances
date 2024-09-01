@@ -1,6 +1,4 @@
-import io
 
-import ccdexplorer_fundamentals.GRPCClient.wadze as wadze
 from ccdexplorer_fundamentals.GRPCClient.CCD_Types import CCD_ContractAddress
 from ccdexplorer_fundamentals.enums import NET
 from ccdexplorer_fundamentals.GRPCClient import GRPCClient
@@ -76,7 +74,7 @@ class Instance(_utils):
             instance_info.update({"source_module": _source_module})
 
         except Exception as e:
-            tooter_message = f"{net}: New instance failed with error  {e}."
+            tooter_message = f"{net}: New instance failed with error {e}."
             self.send_to_tooter(tooter_message)
             return
 
