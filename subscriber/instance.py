@@ -14,10 +14,10 @@ console = Console()
 
 
 class Instance(_utils):
-    async def cleanup(self):
+    async def cleanup(self, from_: str):
 
         for net in NET:
-            console.log(f"Running cleanup for {net}")
+            console.log(f"Running cleanup for {net} from {from_}.")
             db: dict[Collections, Collection] = (
                 self.motor_mainnet if net.value == "mainnet" else self.motor_testnet
             )
@@ -50,7 +50,7 @@ class Instance(_utils):
         self.grpcclient: GRPCClient
         self.tooter: Tooter
 
-        db_to_use = self.motor_testnet if net == "testnet" else self.motor_mainnet
+        db_to_use = self.motor_testnet if net.value == "testnet" else self.motor_mainnet
         instance_ref = msg["instance_ref"]
         try:
             instance_as_class = CCD_ContractAddress.from_str(instance_ref)

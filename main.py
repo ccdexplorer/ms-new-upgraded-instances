@@ -47,7 +47,7 @@ async def main():
         clean_session=False,
         identifier=f"{RUN_LOCAL}instance-mqtt-listener",
     )
-    await subscriber.cleanup()
+    await subscriber.cleanup("startup")
     while True:
         try:
             async with client:
@@ -59,7 +59,7 @@ async def main():
                     if message.topic.matches("ccdexplorer/services/instance/restart"):
                         exit()
                     if message.topic.matches("ccdexplorer/services/cleanup"):
-                        await subscriber.cleanup()
+                        await subscriber.cleanup("topic")
                     if message.topic.matches("ccdexplorer/+/heartbeat/instance/new"):
                         await subscriber.process_new_instance(net, msg)
                     if message.topic.matches(
