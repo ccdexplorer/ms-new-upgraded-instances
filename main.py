@@ -75,7 +75,7 @@ async def main():
                         await subscriber.process_upgraded_instance(net, msg)
                     if message.topic.matches("ccdexplorer/services/info"):
                         await grpcclient.aconnection_info(
-                            "Heartbeat", tooter, ADMIN_CHAT_ID
+                            "MS-Instances", tooter, ADMIN_CHAT_ID
                         )
         except aiomqtt.MqttError:
             print(f"Connection lost; Reconnecting in {interval} seconds ...")
