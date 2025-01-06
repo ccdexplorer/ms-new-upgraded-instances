@@ -1,4 +1,3 @@
-
 from ccdexplorer_fundamentals.GRPCClient.CCD_Types import CCD_ContractAddress
 from ccdexplorer_fundamentals.enums import NET
 from ccdexplorer_fundamentals.GRPCClient import GRPCClient
@@ -92,25 +91,32 @@ class Instance(_utils):
 
         db_to_use = self.motor_testnet if net == "testnet" else self.motor_mainnet
 
-    
-        instance_as_class = await db_to_use[Collections.instances].find_one({"_id": msg["address"]})
+        instance_as_class = await db_to_use[Collections.instances].find_one(
+            {"_id": msg["address"]}
+        )
         if instance_as_class:
             instance_as_class = MongoTypeInstance(**instance_as_class)
         else:
-            tooter_message = f"{net}: Instance {msg["address"]} to be upgradded could not be found."
+            tooter_message = (
+                f"{net}: Instance {msg["address"]} to be upgradded could not be found."
+            )
             self.send_to_tooter(tooter_message)
-            return    
+            return
 
-        
         instance_as_class.source_module = msg["to_module"]
         if instance_as_class.v0:
             instance_as_class.v0.source_module = msg["to_module"]
         elif instance_as_class.v1:
             instance_as_class.v1.source_module = msg["to_module"]
-    
-            
+
         _ = await db_to_use[Collections.instances].bulk_write(
-            [ReplaceOne({"_id": msg["address"]}, instance_as_class.model_dump(exclude_none=True), upsert=True)]
+            [
+                ReplaceOne(
+                    {"_id": msg["address"]},
+                    instance_as_class.model_dump(exclude_none=True),
+                    upsert=True,
+                )
+            ]
         )
         tooter_message = f"{net.value}: Instance processed {msg["address"]} upgraded from module {msg["from_module"]} to module {msg["to_module"]}."
         self.send_to_tooter(tooter_message)
